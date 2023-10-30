@@ -18,21 +18,20 @@ module tt_um_uabc_electronica #( parameter MAX_COUNT = 24'd10_000_000 ) (
         
     always @(posedge clk) begin
         cont <= cont + 1;
-        if(cont == 5000) begin
+        if(cont == 5000000) begin
             cont <= 0;
             reloj <= ~reloj;
-            PULSO <= ~PULSO;
         end
     end
     
     always @(posedge reloj) begin
-        if (ACTIVAR == 1) begin
+        if (ui_in[0] == 1) begin
             an <= 4'b1110;
             if (LETRA == 16) begin
                 LETRA <= 0;
             end else
                 LETRA <= LETRA + 1; 
-        end else if (ACTIVAR == 0) begin
+        end else if (ui_in[0] == 0) begin
             an <= 4'b1111; 
             LETRA <= 0;  
         end    
@@ -40,23 +39,23 @@ module tt_um_uabc_electronica #( parameter MAX_COUNT = 24'd10_000_000 ) (
     
     always @(LETRA) begin
         case(LETRA)
-            5'b00000: seg = 7'b1111111;
-            5'b00001: seg = 7'b1000001; //U
-            5'b00010: seg = 7'b0001000; //A
-            5'b00011: seg = 7'b0000011; //B
-            5'b00100: seg = 7'b1000110; //C
-            5'b00101: seg = 7'b0111111; //-
-            5'b00110: seg = 7'b0000110; //E
-            5'b00111: seg = 7'b1000111; //L 
-            5'b01000: seg = 7'b0000110; //E
-            5'b01001: seg = 7'b1000110; //C
-            5'b01010: seg = 7'b1001110; //T
-            5'b01011: seg = 7'b0101111; //R
-            5'b01100: seg = 7'b1000000; //O
-            5'b01101: seg = 7'b0101011; //N
-            5'b01110: seg = 7'b1001111; //I
-            5'b01111: seg = 7'b1000110; //C
-            5'b10000: seg = 7'b0001000; //A
+            5'b00000: uo_out = 7'b1111111;
+            5'b00001: uo_out = 7'b1000001; //U
+            5'b00010: uo_out = 7'b0001000; //A
+            5'b00011: uo_out = 7'b0000011; //B
+            5'b00100: uo_out = 7'b1000110; //C
+            5'b00101: uo_out = 7'b0111111; //-
+            5'b00110: uo_out = 7'b0000110; //E
+            5'b00111: uo_out = 7'b1000111; //L 
+            5'b01000: uo_out = 7'b0000110; //E
+            5'b01001: uo_out = 7'b1000110; //C
+            5'b01010: uo_out = 7'b1001110; //T
+            5'b01011: uo_out = 7'b0101111; //R
+            5'b01100: uo_out = 7'b1000000; //O
+            5'b01101: uo_out = 7'b0101011; //N
+            5'b01110: uo_out = 7'b1001111; //I
+            5'b01111: uo_out = 7'b1000110; //C
+            5'b10000: uo_out = 7'b0001000; //A
         endcase
     end
 endmodule
