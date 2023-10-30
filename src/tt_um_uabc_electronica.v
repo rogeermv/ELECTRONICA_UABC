@@ -1,4 +1,4 @@
-`timescale 1ns / 1ps
+`default_nettype none
 
 module tt_um_uabc_electronica #( parameter MAX_COUNT = 24'd10_000_000 ) (
     input  wire [7:0] ui_in,    // Dedicated inputs - connected to the input switches
@@ -10,50 +10,51 @@ module tt_um_uabc_electronica #( parameter MAX_COUNT = 24'd10_000_000 ) (
     input  wire       clk,      // clock
     input  wire       rst_n     // reset_n - low to reset
 );
-    
-    reg reloj;
-    reg [25:0] cont = 0;
-    
-    integer LETRA = 0;
-        
+
+    wire reset = ! rst_n;
+    wire [6:0] led_out;
+    assign uo_out[6:0] = led_out;
+    assign uo_out[7] = 1'b0;
+
+    // use bidirectionals as outputs
+    assign uio_oe = 8'b11111111;
+
+    // put bottom 8 bits of second counter out on the bidirectional gpio
+    assign uio_out = second_counter[7:0];
+
+    // external clock is 10MHz, so need 24 bit counter
+    reg [23:0] second_counter;
+    reg [3:0] digit;
+
+    // if external inputs are set then use that as compare count
+    // otherwise use the hard coded MAX_COUNT
+    wire [23:0] compare = ui_in == 0 ? MAX_COUNT: {6'b0, ui_in[7:0], 10'b0};
+
     always @(posedge clk) begin
-        cont <= cont + 1;
-        if(cont == 5000000) begin
-            cont <= 0;
-            reloj <= ~reloj;
+        // if reset, set counter to 0
+        if (reset) begin
+            second_counter <= 0;
+            digit <= 0;
+        end else begin
+            // if up to 16e6
+            if (second_counter == compare) begin
+                // reset
+                second_counter <= 0;
+
+                // increment digit
+                digit <= digit + 1'b1;
+
+                // only count from 0 to 9
+                if (digit == 9)
+                    digit <= 0;
+
+            end else
+                // increment counter
+                second_counter <= second_counter + 1'b1;
         end
     end
-    
-    always @(posedge reloj) begin
-        if (ui_in[0] == 1) begin
-            if (LETRA == 16) begin
-                LETRA <= 0;
-            end else
-                LETRA <= LETRA + 1; 
-        end else if (ui_in[0] == 0) begin
-            LETRA <= 0;  
-        end    
-    end
-    
-    always @(LETRA) begin
-        case(LETRA)
-            5'b00000: uo_out = 7'b1111111;
-            5'b00001: uo_out = 7'b1000001; //U
-            5'b00010: uo_out = 7'b0001000; //A
-            5'b00011: uo_out = 7'b0000011; //B
-            5'b00100: uo_out = 7'b1000110; //C
-            5'b00101: uo_out = 7'b0111111; //-
-            5'b00110: uo_out = 7'b0000110; //E
-            5'b00111: uo_out = 7'b1000111; //L 
-            5'b01000: uo_out = 7'b0000110; //E
-            5'b01001: uo_out = 7'b1000110; //C
-            5'b01010: uo_out = 7'b1001110; //T
-            5'b01011: uo_out = 7'b0101111; //R
-            5'b01100: uo_out = 7'b1000000; //O
-            5'b01101: uo_out = 7'b0101011; //N
-            5'b01110: uo_out = 7'b1001111; //I
-            5'b01111: uo_out = 7'b1000110; //C
-            5'b10000: uo_out = 7'b0001000; //A
-        endcase
-    end
+
+    // instantiate segment display
+    seg7 seg7(.counter(digit), .segments(led_out));
+
 endmodule
