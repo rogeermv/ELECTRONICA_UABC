@@ -26,13 +26,11 @@ module tt_um_uabc_electronica #( parameter MAX_COUNT = 24'd10_000_000 ) (
     
     always @(posedge reloj) begin
         if (ui_in[0] == 1) begin
-            an <= 4'b1110;
             if (LETRA == 16) begin
                 LETRA <= 0;
             end else
                 LETRA <= LETRA + 1; 
         end else if (ui_in[0] == 0) begin
-            an <= 4'b1111; 
             LETRA <= 0;  
         end    
     end
