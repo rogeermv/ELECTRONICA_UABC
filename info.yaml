@@ -33,7 +33,7 @@ documentation:
       will show each letter of the word, with a waiting time of one second.
 
       Each change in the display will be made with a one-second timeout that is being manipulated 
-      with a 10 kHz clock frequency.
+      with a 10 MHz clock frequency.
 
 # Instructions on how someone could test your project, include things like what buttons do what and how to set the clock if needed
   how_to_test:  |
@@ -77,5 +77,5 @@ documentation:
   external_hw:  ""      # Describe any external hardware needed
   discord:      "Rogeermv#0891"      # Your discord handle, used for communication and automatically assigning tapeout role after a submission
   doc_link:     ""      # URL to longer form documentation, eg the README.md in your repository
-  clock_hz:     10000       # Clock frequency in Hz (if required)
+  clock_hz:     10000000       # Clock frequency in Hz (if required)
   picture:      ""      # relative path to a picture in your repository (must be 512kb or less)
